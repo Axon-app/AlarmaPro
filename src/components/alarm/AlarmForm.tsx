@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Alarm, AlarmPriority } from '../../types';
+import { Alarm, AlarmPriority, ThemeType } from '../../types';
 import { ALARM_SOUNDS, WEEK_DAYS, DEFAULT_ALARM } from '../../constants';
 import { validateAlarmForm } from '../../utils';
 import { Card, Button, Input } from '../ui';
@@ -11,6 +11,7 @@ interface AlarmFormProps {
   theme: {
     accent: string;
   };
+  themeType: ThemeType;
   onSave: (alarm: Omit<Alarm, 'id'>) => void;
   onCancel: () => void;
   alarmVolume: number;
@@ -22,6 +23,7 @@ export const AlarmForm: React.FC<AlarmFormProps> = ({
   alarm,
   isDarkMode,
   theme,
+  themeType,
   onSave,
   onCancel,
   alarmVolume,
@@ -230,6 +232,8 @@ export const AlarmForm: React.FC<AlarmFormProps> = ({
             type="submit"
             variant="primary"
       className="flex-1 py-3 sm:py-4 text-base sm:text-lg"
+            isDarkMode={isDarkMode}
+            themeType={themeType}
           >
             {alarm ? '✅ Actualizar' : '💾 Guardar'}
           </Button>
@@ -238,6 +242,8 @@ export const AlarmForm: React.FC<AlarmFormProps> = ({
             variant="secondary"
             onClick={onCancel}
       className="flex-1 py-3 sm:py-4 text-base sm:text-lg"
+            isDarkMode={isDarkMode}
+            themeType={themeType}
           >
             ❌ Cancelar
           </Button>

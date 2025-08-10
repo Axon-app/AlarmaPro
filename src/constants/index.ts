@@ -54,6 +54,15 @@ export const THEME_ACCENT_HEX: Record<ThemeType, string> = {
   cosmic: '#7c3aed', // violet-600
 };
 
+// Start/End gradient colors per theme to paint primary buttons and headings
+export const THEME_ACCENT_GRADIENT_HEX: Record<ThemeType, { start: string; end: string }> = {
+  purple: { start: '#9333ea', end: '#6366f1' },  // purple-600 → indigo-500
+  ocean:  { start: '#2563eb', end: '#06b6d4' },  // blue-600 → cyan-500
+  sunset: { start: '#ea580c', end: '#ef4444' },  // orange-600 → red-500
+  forest: { start: '#16a34a', end: '#22c55e' },  // green-600 → green-500
+  cosmic: { start: '#7c3aed', end: '#db2777' },  // violet-600 → rose-600
+};
+
 // Wave visual styles per theme for the clock visualizer
 export type WaveVariant = 'ribbons' | 'bars' | 'dots' | 'bezier';
 export const THEME_WAVES: Record<ThemeType, { variant: WaveVariant; colors: string[] } > = {

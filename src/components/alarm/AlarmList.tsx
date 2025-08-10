@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alarm } from '../../types';
+import { Alarm, ThemeType } from '../../types';
 import { AlarmItem } from './AlarmItem';
 // Import { Clock, Sparkles } from 'lucide-react';
 
@@ -10,6 +10,7 @@ interface AlarmListProps {
   theme: {
     accent: string;
   };
+  themeType: ThemeType;
   onEdit: (alarm: Alarm) => void;
   onToggle: (id: number) => void;
   onDelete: (id: number) => void;
@@ -20,6 +21,7 @@ export const AlarmList: React.FC<AlarmListProps> = ({
   isDarkMode,
   is24HourFormat,
   theme,
+  themeType,
   onEdit,
   onToggle,
   onDelete
@@ -49,6 +51,7 @@ export const AlarmList: React.FC<AlarmListProps> = ({
           isDarkMode={isDarkMode}
           is24HourFormat={is24HourFormat}
           theme={theme}
+          themeType={themeType}
           onEdit={onEdit}
           onToggle={onToggle}
           onDelete={onDelete}

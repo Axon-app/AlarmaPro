@@ -87,7 +87,7 @@ const ModernAlarmSystem: React.FC = () => {
           </div>
 
           {/* Control panel */}
-          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-5 sm:mb-6 overflow-x-auto px-1 py-1" style={{ overflow: 'visible' }}>
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-5 sm:mb-6 overflow-x-auto px-1 py-1">
             <TimeFormatToggle
               is24Hour={settings.is24HourFormat}
               onToggle={toggleTimeFormat}

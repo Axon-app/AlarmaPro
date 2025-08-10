@@ -47,9 +47,9 @@
         pointer-events: none;
       }
     </style>
-    <script type="module" crossorigin src="/AlarmaPro/assets/index-DeBU6Ry1.js"></script>
+    <script type="module" crossorigin src="/AlarmaPro/assets/index-DVBEWvRy.js"></script>
     <link rel="modulepreload" crossorigin href="/AlarmaPro/assets/vendor-nf7bT_Uh.js">
-    <link rel="stylesheet" crossorigin href="/AlarmaPro/assets/index-EfY1EtBj.css">
+    <link rel="stylesheet" crossorigin href="/AlarmaPro/assets/index-q8r9qjlc.css">
   </head>
   <body class="font-sans antialiased">
     <!-- Loading screen -->
@@ -62,7 +62,7 @@
     
     <!-- Main app -->
     <div id="root"></div>
-    
+    
     
     <script>
       // Hide loading screen when app loads
@@ -72,21 +72,6 @@
           document.getElementById('loading').remove();
         }, 500);
       });
-      
-      // Service Worker registration for PWA functionality
-      if ('serviceWorker' in navigator && location.hostname.endsWith('github.io')) {
-        window.addEventListener('load', () => {
-          const base = location.pathname.replace(/\/[^/]*$/,'/');
-          const swUrl = base + 'sw.js';
-          navigator.serviceWorker.register(swUrl)
-            .then((registration) => {
-              console.log('SW registered: ', registration);
-            })
-            .catch((registrationError) => {
-              console.log('SW registration failed: ', registrationError);
-            });
-        });
-      }
     </script>
   </body>
 </html>

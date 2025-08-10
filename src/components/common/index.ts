@@ -5,6 +5,7 @@ export { AlarmSounds } from './AlarmSounds.tsx';
 export { TimeDisplay } from './TimeDisplay.tsx';
 export { ParticleBackground } from './ParticleBackground.tsx';
 export { ThemeWaves } from './ThemeWaves.tsx';
+export { ThemeSelect } from './ThemeSelect.tsx';
 export { GlassmorphismBackground } from './GlassmorphismBackground.tsx';
 export { TimePicker } from './TimePicker.tsx';
 export { TimeFormatToggle } from './TimeFormatToggle.tsx';

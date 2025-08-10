@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alarm } from '../../types';
+import { Alarm, ThemeType } from '../../types';
 import { formatAlarmTime, getPriorityColor, getPriorityLabel } from '../../utils';
 import { ALARM_SOUNDS, WEEK_DAYS } from '../../constants';
 import { Card, Button } from '../ui';
@@ -12,6 +12,7 @@ interface AlarmItemProps {
   theme: {
     accent: string;
   };
+  themeType: ThemeType;
   onEdit: (alarm: Alarm) => void;
   onToggle: (id: number) => void;
   onDelete: (id: number) => void;
@@ -21,6 +22,7 @@ export const AlarmItem: React.FC<AlarmItemProps> = ({
   alarm,
   isDarkMode,
   is24HourFormat,
+  themeType,
   onEdit,
   onToggle,
   onDelete
@@ -94,6 +96,8 @@ export const AlarmItem: React.FC<AlarmItemProps> = ({
             onClick={() => onEdit(alarm)}
             className="p-3 sm:p-4 hover:scale-110"
             title="Editar alarma"
+            isDarkMode={isDarkMode}
+            themeType={themeType}
           >
             {/* <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" /> */}
             ⚙️
@@ -105,6 +109,8 @@ export const AlarmItem: React.FC<AlarmItemProps> = ({
             onClick={() => onToggle(alarm.id)}
             className="p-3 sm:p-4 hover:scale-110"
             title={alarm.enabled ? 'Desactivar' : 'Activar'}
+            isDarkMode={isDarkMode}
+            themeType={themeType}
           >
             {alarm.enabled ? '⏸️' : '▶️'}
           </Button>
@@ -115,6 +121,8 @@ export const AlarmItem: React.FC<AlarmItemProps> = ({
             onClick={() => onDelete(alarm.id)}
             className="p-3 sm:p-4 hover:scale-110"
             title="Eliminar alarma"
+            isDarkMode={isDarkMode}
+            themeType={themeType}
           >
             🗑️
           </Button>
