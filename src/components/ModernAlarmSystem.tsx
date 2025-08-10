@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Alarm } from '../types';
 import { useAlarmManager, useCurrentTime, useSettings, useSnooze, useDeviceStatus } from '../hooks';
-import { THEMES, THEME_ACCENT_HEX, QUICK_ALARMS, SNOOZE_DURATION, MAX_SNOOZE_COUNT } from '../constants';
+import { THEMES, THEME_ACCENT_HEX, QUICK_ALARMS, SNOOZE_DURATION, MAX_SNOOZE_COUNT, APP_VERSION } from '../constants';
 import { createQuickAlarm, createSnoozeAlarm } from '../utils';
 
 // Función para obtener la ruta completa de recursos estáticos
@@ -26,6 +26,7 @@ const ModernAlarmSystem: React.FC = () => {
   const [editingAlarm, setEditingAlarm] = useState<Alarm | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [shouldOpenInstall, setShouldOpenInstall] = useState(false);
   
   // Logo estático (sin efecto 3D)
 
@@ -73,6 +74,9 @@ const ModernAlarmSystem: React.FC = () => {
       e.preventDefault();
       // Stash the event so it can be triggered later
       setDeferredPrompt(e);
+      // Si no está instalada, podemos abrir el modal de instalación
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+      if (!isStandalone) setShouldOpenInstall(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -80,6 +84,23 @@ const ModernAlarmSystem: React.FC = () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
   }, []);
+
+  // Verificar estado instalado/versión al cargar
+  useEffect(() => {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+    const lastSeenVersion = localStorage.getItem('alarmapro_version');
+    const firstTime = !localStorage.getItem('alarmapro_welcomed');
+
+    // Si no instalada y aún no tenemos prompt diferido, igual mostramos modal con instrucciones
+    if (!isStandalone && (firstTime || !deferredPrompt)) {
+      setShouldOpenInstall(true);
+    }
+
+    // Si instalada pero nueva versión, mostramos modal (para informar cambios)
+    if (isStandalone && lastSeenVersion && lastSeenVersion !== APP_VERSION) {
+      setShouldOpenInstall(true);
+    }
+  }, [deferredPrompt]);
 
   const handleInstallApp = () => {
     if (!deferredPrompt) {
@@ -95,6 +116,9 @@ const ModernAlarmSystem: React.FC = () => {
     deferredPrompt.userChoice.then((choiceResult: any) => {
       if (choiceResult.outcome === 'accepted') {
         console.log('Usuario aceptó la instalación');
+        try {
+          localStorage.setItem('alarmapro_version', APP_VERSION);
+        } catch {}
       } else {
         console.log('Usuario rechazó la instalación');
       }
@@ -408,7 +432,8 @@ const ModernAlarmSystem: React.FC = () => {
       <WelcomeModal 
         isDarkMode={settings.isDarkMode} 
         onInstall={handleInstallApp}
-        onDismiss={() => {}}
+  onDismiss={() => setShouldOpenInstall(false)}
+  shouldOpen={shouldOpenInstall}
       />
 
   {/* Audio element for alarm sounds (src se asigna dinámicamente) */}

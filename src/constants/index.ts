@@ -123,3 +123,6 @@ export const SNOOZE_DURATION = 5; // minutes
 export const MAX_SNOOZE_COUNT = 3;
 export const ANIMATION_DURATION = 300;
 export const WAVE_COUNT = 5;
+
+// App version for install/update prompts (injected from Vite at build time)
+export const APP_VERSION: string = (import.meta as any).env?.VITE_APP_VERSION || '1.0.0';

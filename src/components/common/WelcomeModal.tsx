@@ -5,6 +5,8 @@ interface WelcomeModalProps {
   isDarkMode: boolean;
   onInstall: () => void;
   onDismiss: () => void;
+  // Opcional: forzar apertura desde el padre si detectamos que no está instalada
+  shouldOpen?: boolean;
 }
 
 const getPath = (path: string): string => {
@@ -15,26 +17,48 @@ const getPath = (path: string): string => {
 export const WelcomeModal: React.FC<WelcomeModalProps> = ({
   isDarkMode,
   onInstall,
-  onDismiss
+  onDismiss,
+  shouldOpen,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Check if the user is visiting for the first time
+  // Mostrar si:
+  // - no está instalada (display-mode != standalone)
+  // - o hay una versión nueva (comparando localStorage vs versión actual)
   useEffect(() => {
-    const hasVisited = localStorage.getItem('alarmapro_welcomed');
-    if (!hasVisited) {
+    // Detectar display-mode standalone (PWA instalada)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+    const lastSeenVersion = localStorage.getItem('alarmapro_version');
+    const currentVersion = (import.meta as any).env?.VITE_APP_VERSION || '1.0.0';
+
+    const firstTime = !localStorage.getItem('alarmapro_welcomed');
+    const hasNewVersion = !!lastSeenVersion && lastSeenVersion !== currentVersion;
+
+    if (shouldOpen === true) {
+      setIsOpen(true);
+    } else if (!isStandalone) {
+      // No instalada: mostrar modal de instalación
+      setIsOpen(true);
+    } else if (hasNewVersion) {
+      // Instalada pero nueva versión: sugerir actualizar/instalar de nuevo (si el SW cambió)
+      setIsOpen(true);
+    } else if (firstTime) {
       setIsOpen(true);
     }
-  }, []);
+  }, [shouldOpen]);
 
   const handleDismiss = () => {
     localStorage.setItem('alarmapro_welcomed', 'true');
+    const currentVersion = (import.meta as any).env?.VITE_APP_VERSION || '1.0.0';
+    localStorage.setItem('alarmapro_version', currentVersion);
     setIsOpen(false);
     onDismiss();
   };
 
   const handleInstall = () => {
     localStorage.setItem('alarmapro_welcomed', 'true');
+    const currentVersion = (import.meta as any).env?.VITE_APP_VERSION || '1.0.0';
+    localStorage.setItem('alarmapro_version', currentVersion);
     setIsOpen(false);
     onInstall();
   };
