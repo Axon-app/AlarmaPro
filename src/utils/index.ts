@@ -117,8 +117,7 @@ export const createQuickAlarm = (minutes: number): Omit<Alarm, 'id'> => {
     enabled: true,
     priority: 'high',
     vibrate: true,
-    gradualWake: false,
-    challengeMode: false
+  gradualWake: false
   };
 };
 

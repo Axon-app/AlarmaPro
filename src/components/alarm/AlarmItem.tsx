@@ -68,11 +68,7 @@ export const AlarmItem: React.FC<AlarmItemProps> = ({
               </span>
             )}
             
-            {alarm.challengeMode && (
-              <span className={`px-2 py-1 rounded-md text-xs ${isDarkMode ? 'bg-red-600/30 text-red-300' : 'bg-red-200 text-red-800'}`}>
-                🧩 Desafío
-              </span>
-            )}
+            {/* Modo Desafío eliminado */}
           </div>
           
           {alarm.days.length > 0 && (

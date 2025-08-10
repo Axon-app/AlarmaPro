@@ -63,6 +63,7 @@
         opacity: 0;
         pointer-events: none;
       }
+
     </style>
     <script type="module" crossorigin src="/AlarmaPro/assets/index-B2fPHPZL.js"></script>
     <link rel="modulepreload" crossorigin href="/AlarmaPro/assets/vendor-nf7bT_Uh.js">
@@ -103,3 +104,46 @@
     </script>
   </body>
 </html>
+
+    </style>
+    <script type="module" crossorigin src="/AlarmaPro/assets/index-DFZqFY2r.js"></script>
+    <link rel="modulepreload" crossorigin href="/AlarmaPro/assets/vendor-nf7bT_Uh.js">
+    <link rel="stylesheet" crossorigin href="/AlarmaPro/assets/index-mFDaQZAM.css">
+  </head>
+  <body class="font-sans antialiased">
+    <!-- Loading screen -->
+    <div id="loading">
+      <div class="text-center">
+        <div class="loading-spinner mx-auto mb-4"></div>
+        <p class="text-white text-lg font-medium">Cargando AlarmaPro...</p>
+      </div>
+    </div>
+    
+    <!-- Main app -->
+    <div id="root"></div>
+    
+
+    
+    <script>
+      // Hide loading screen when app loads
+      window.addEventListener('load', () => {
+        document.body.classList.add('loaded');
+        setTimeout(() => {
+          document.getElementById('loading').remove();
+        }, 500);
+        
+        // Registrar el service worker para permitir la instalación como PWA
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('sw.js')
+            .then(registration => {
+              console.log('Service Worker registrado con éxito:', registration);
+            })
+            .catch(error => {
+              console.log('Error al registrar el Service Worker:', error);
+            });
+        }
+      });
+    </script>
+  </body>
+</html>
+

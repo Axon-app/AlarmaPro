@@ -115,8 +115,7 @@ export const DEFAULT_ALARM = {
   enabled: true,
   priority: 'normal' as const,
   vibrate: true,
-  gradualWake: false,
-  challengeMode: false
+  gradualWake: false
 };
 
 export const SNOOZE_DURATION = 5; // minutes

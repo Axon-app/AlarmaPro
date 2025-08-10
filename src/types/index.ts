@@ -8,7 +8,6 @@ export interface Alarm {
   priority: AlarmPriority;
   vibrate: boolean;
   gradualWake: boolean;
-  challengeMode: boolean;
 }
 
 export type AlarmPriority = 'low' | 'normal' | 'high' | 'urgent';

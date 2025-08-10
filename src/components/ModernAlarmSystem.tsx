@@ -220,6 +220,7 @@ const ModernAlarmSystem: React.FC = () => {
               onClick={() => setShowAddForm(!showAddForm)}
               className="min-w-0 flex-1 flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-4 text-base sm:text-lg"
               isDarkMode={settings.isDarkMode}
+              themeType={settings.theme}
             >
               ➕ {editingAlarm ? 'Editar Alarma' : 'Nueva Alarma'}
             </Button>
@@ -229,6 +230,7 @@ const ModernAlarmSystem: React.FC = () => {
               onClick={() => setShowQuickAlarms(!showQuickAlarms)}
               className="min-w-0 flex-1 flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-4 text-base sm:text-lg"
               isDarkMode={settings.isDarkMode}
+              themeType={settings.theme}
             >
               ⚡ Alarmas Rápidas
             </Button>
@@ -267,6 +269,7 @@ const ModernAlarmSystem: React.FC = () => {
             alarmVolume={settings.alarmVolume}
             onVolumeChange={setVolume}
             is24HourFormat={settings.is24HourFormat}
+            onToggleTimeFormat={toggleTimeFormat}
           />
         </Modal>
 

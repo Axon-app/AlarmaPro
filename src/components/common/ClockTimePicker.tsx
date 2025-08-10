@@ -66,6 +66,44 @@ export const ClockTimePicker: React.FC<ClockTimePickerProps> = ({
   const [selAmpm, setSelAmpm] = useState<'AM' | 'PM' | ''>(disp.ampm);
   const [mode, setMode] = useState<'hours' | 'minutes'>('hours');
   const rootRef = useRef<HTMLDivElement>(null);
+  const dialRef = useRef<HTMLDivElement>(null);
+  const [dragging, setDragging] = useState(false);
+  const [dragMode, setDragMode] = useState<'hours' | 'minutes'>('hours');
+
+  // Convert a pointer position to hour/minute and update selection
+  const updateFromPointer = React.useCallback((clientX: number, clientY: number) => {
+    if (!dialRef.current) return;
+    const rect = dialRef.current.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const ang = Math.atan2(y - cy, x - cx) * (180 / Math.PI); // -180..180, 0 at 3 o'clock
+    const norm = (ang + 90 + 360) % 360; // 0 at 12 o'clock, clockwise
+
+    if (dragMode === 'hours') {
+      const steps = use12Hour ? 12 : 24;
+      let idx = Math.round((norm / 360) * steps) % steps; // 0..steps-1
+      let value = use12Hour ? (idx === 0 ? 12 : idx) : idx; // 0 -> 12 for 12h
+      setSelHour(value);
+    } else {
+      let idx = Math.round((norm / 360) * 60) % 60; // 0..59
+      setSelMin(idx);
+    }
+  }, [dragMode, use12Hour]);
+
+  // Global pointer listeners while dragging
+  useEffect(() => {
+    if (!dragging) return;
+    const onMove = (ev: PointerEvent) => updateFromPointer(ev.clientX, ev.clientY);
+    const onUp = () => setDragging(false);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp, { once: true });
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp as any);
+    };
+  }, [dragging, updateFromPointer]);
 
   useEffect(() => {
     const d = toDisplay(h, use12Hour);
@@ -126,8 +164,22 @@ export const ClockTimePicker: React.FC<ClockTimePickerProps> = ({
     const selected = isHours ? selHour : selMin;
     const angle = isHours ? angleForHour(use12Hour ? selHour % 12 : selHour) : angleForMinute(selMin);
 
+    const onPointerDown = (e: React.PointerEvent) => {
+      e.preventDefault();
+      setDragging(true);
+      setDragMode(mode);
+      updateFromPointer(e.clientX, e.clientY);
+      try {
+        (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+      } catch {}
+    };
+
     return (
-  <div className={`relative w-[260px] h-[260px] rounded-full ${ringColor} border ${border} mx-auto select-none`}>
+  <div
+        ref={dialRef}
+        onPointerDown={onPointerDown}
+        className={`relative w-[260px] h-[260px] rounded-full ${ringColor} border ${border} mx-auto select-none touch-none ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+      >
         {/* Pointer */}
         <div
           className="absolute left-1/2 top-1/2 origin-center"

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Alarm, ThemeType } from '../../types';
 import { AlarmItem } from './AlarmItem';
+import { Modal, Button } from '../ui';
 // Import { Clock, Sparkles } from 'lucide-react';
 
 interface AlarmListProps {
@@ -26,6 +27,21 @@ export const AlarmList: React.FC<AlarmListProps> = ({
   onToggle,
   onDelete
 }) => {
+  const [toDelete, setToDelete] = useState<Alarm | null>(null);
+
+  const requestDelete = (id: number) => {
+    const found = alarms.find(a => a.id === id) || null;
+    setToDelete(found);
+  };
+
+  const confirmDelete = () => {
+    if (toDelete) {
+      onDelete(toDelete.id);
+      setToDelete(null);
+    }
+  };
+
+  const cancelDelete = () => setToDelete(null);
   if (alarms.length === 0) {
     return (
       <div className={`text-center py-10 sm:py-16 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -54,9 +70,37 @@ export const AlarmList: React.FC<AlarmListProps> = ({
           themeType={themeType}
           onEdit={onEdit}
           onToggle={onToggle}
-          onDelete={onDelete}
+          onDelete={requestDelete}
         />
       ))}
+
+      {/* Confirm delete modal */}
+      <Modal
+        open={!!toDelete}
+        onClose={cancelDelete}
+        title="Confirmar eliminación"
+        maxWidthClass="max-w-sm"
+      >
+        <div className="space-y-4">
+          <p className={`${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+            ¿Estás seguro de que deseas eliminar esta alarma?
+          </p>
+          {toDelete && (
+            <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-white/10 text-white' : 'bg-black/5 text-gray-800'}`}>
+              <div className="font-semibold">{toDelete.label || 'Alarma'}</div>
+              <div className="opacity-80 text-sm">{toDelete.time}</div>
+            </div>
+          )}
+          <div className="flex gap-3 justify-end">
+            <Button variant="ghost" onClick={cancelDelete} isDarkMode={isDarkMode} themeType={themeType}>
+              Cancelar
+            </Button>
+            <Button variant="danger" onClick={confirmDelete} isDarkMode={isDarkMode}>
+              Eliminar
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

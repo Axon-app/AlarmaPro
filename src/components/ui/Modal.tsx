@@ -27,7 +27,7 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+  className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4"
       role="dialog"
       aria-modal="true"
     >
@@ -39,7 +39,7 @@ export const Modal: React.FC<ModalProps> = ({
 
       {/* Sheet on mobile, centered dialog on desktop */}
       <div
-        className={`relative w-full sm:w-auto sm:${maxWidthClass} sm:mx-auto bg-white/5 sm:bg-white/10 border border-white/20 rounded-t-2xl sm:rounded-2xl shadow-2xl backdrop-blur-xl overflow-hidden`}
+        className={`relative w-full sm:w-auto sm:${maxWidthClass} sm:mx-auto bg-white/5 sm:bg-white/10 border border-white/20 rounded-2xl shadow-2xl backdrop-blur-xl overflow-hidden`}
         style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0px)', maxWidth: maxWidthClass === 'max-w-sm' ? '340px' : undefined }}
       >
         {/* Header */}

@@ -3,7 +3,7 @@ import { Alarm, ThemeType } from '../../types';
 import { WEEK_DAYS, DEFAULT_ALARM } from '../../constants';
 import { validateAlarmForm } from '../../utils';
 import { Card, Button, Input } from '../ui';
-import { ClockTimePicker, AlarmSounds } from '../common';
+import { ClockTimePicker, AlarmSounds, TimeFormatToggle } from '../common';
 
 interface AlarmFormProps {
   alarm?: Alarm;
@@ -17,6 +17,7 @@ interface AlarmFormProps {
   alarmVolume: number;
   onVolumeChange: (volume: number) => void;
   is24HourFormat?: boolean;
+  onToggleTimeFormat?: () => void;
 }
 
 export const AlarmForm: React.FC<AlarmFormProps> = ({
@@ -28,7 +29,8 @@ export const AlarmForm: React.FC<AlarmFormProps> = ({
   onCancel,
   alarmVolume,
   onVolumeChange,
-  is24HourFormat = true
+  is24HourFormat = true,
+  onToggleTimeFormat
 }) => {
   const accentHex = useMemo(() => {
     switch (theme.accent) {
@@ -49,8 +51,7 @@ export const AlarmForm: React.FC<AlarmFormProps> = ({
       enabled: alarm.enabled,
       priority: alarm.priority,
       vibrate: alarm.vibrate,
-      gradualWake: alarm.gradualWake,
-      challengeMode: alarm.challengeMode
+  gradualWake: alarm.gradualWake
     } : { ...DEFAULT_ALARM }
   );
 
@@ -103,6 +104,13 @@ export const AlarmForm: React.FC<AlarmFormProps> = ({
         )}
 
         <div>
+          <div className="mb-3 flex justify-end">
+            <TimeFormatToggle
+              is24Hour={!!is24HourFormat}
+              onToggle={onToggleTimeFormat || (() => {})}
+              isDarkMode={isDarkMode}
+            />
+          </div>
           <ClockTimePicker
             label="⏰ Hora"
             value={formData.time}
@@ -181,11 +189,10 @@ export const AlarmForm: React.FC<AlarmFormProps> = ({
             ⚙️ Opciones Avanzadas
           </h4>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {[
               { key: 'vibrate', label: '📳 Vibrar' },
-              { key: 'gradualWake', label: '🌅 Despertar Gradual' },
-              { key: 'challengeMode', label: '🧩 Modo Desafío' }
+        { key: 'gradualWake', label: '🌅 Despertar Gradual' }
             ].map((option) => (
               <label key={option.key} className="flex items-center gap-3 cursor-pointer">
                 <input
