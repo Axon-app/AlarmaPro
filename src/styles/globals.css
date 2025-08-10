@@ -1,0 +1,46 @@
+/* Import custom animations */
+@import './animations.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure select and options are readable on dark backgrounds */
+select {
+	color: inherit; /* follow parent text color */
+}
+
+/* Many browsers render <option> on system UI; we provide a default dark text for white option panels */
+option {
+	color: #111827; /* gray-900 */
+	background-color: #ffffff; /* white background for dropdown rows */
+}
+/* Range input styling for consistent look */
+input[type="range"] {
+	appearance: none;
+	-webkit-appearance: none;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+	height: 12px;
+	border-radius: 9999px;
+}
+input[type="range"]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	width: 20px;
+	height: 20px;
+	border-radius: 9999px;
+	background: white;
+	border: 3px solid currentColor;
+	margin-top: -4px; /* center on track */
+}
+input[type="range"]::-moz-range-track {
+	height: 12px;
+	border-radius: 9999px;
+}
+input[type="range"]::-moz-range-thumb {
+	width: 20px;
+	height: 20px;
+	border-radius: 9999px;
+	background: white;
+	border: 3px solid currentColor;
+}

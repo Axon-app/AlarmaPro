@@ -1,0 +1,330 @@
+import React, { useState, useRef } from 'react';
+import { Alarm } from '../types';
+import { useAlarmManager, useCurrentTime, useSettings, useSnooze, useDeviceStatus } from '../hooks';
+import { THEMES, THEME_EMOJI, THEME_ACCENT_HEX, QUICK_ALARMS, SNOOZE_DURATION, MAX_SNOOZE_COUNT } from '../constants';
+import { createQuickAlarm, createSnoozeAlarm } from '../utils';
+import { DigitalClock, ParticleBackground, TimeFormatToggle } from './common';
+import { AlarmList, AlarmForm } from './alarm';
+import { Card, Button, Modal } from './ui';
+
+const ModernAlarmSystem: React.FC = () => {
+  // State management using custom hooks
+  const currentTime = useCurrentTime();
+  const { settings, toggleDarkMode, toggleTimeFormat, toggleVoice, setTheme, setVolume } = useSettings();
+  const { alarms, activeAlarm, addAlarm, updateAlarm, deleteAlarm, toggleAlarm, dismissAlarm } = useAlarmManager();
+  const { isSnoozing, snoozeCount, canSnooze, snooze, resetSnooze } = useSnooze(MAX_SNOOZE_COUNT);
+  const device = useDeviceStatus();
+
+  // Local state for UI
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [showQuickAlarms, setShowQuickAlarms] = useState(false);
+  // Eliminado: botón/estado para estadísticas
+  const [editingAlarm, setEditingAlarm] = useState<Alarm | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  const currentTheme = THEMES[settings.theme];
+  // Removed extra left icon in theme select; using emoji inside option labels only
+
+  // Event handlers
+  const handleAddQuickAlarm = (minutes: number) => {
+    const alarmData = createQuickAlarm(minutes);
+    addAlarm(alarmData);
+    setShowQuickAlarms(false);
+  };
+
+  const handleSnoozeAlarm = () => {
+    if (activeAlarm && canSnooze) {
+      const snoozeData = createSnoozeAlarm(activeAlarm, snoozeCount, SNOOZE_DURATION);
+      addAlarm(snoozeData);
+      snooze();
+      dismissAlarm();
+    }
+  };
+
+  const handleSaveAlarm = (alarmData: Omit<Alarm, 'id'>) => {
+    if (editingAlarm) {
+      updateAlarm(editingAlarm.id, alarmData);
+    } else {
+      addAlarm(alarmData);
+    }
+    setEditingAlarm(null);
+    setShowAddForm(false);
+  };
+
+  const handleEditAlarm = (alarm: Alarm) => {
+    setEditingAlarm(alarm);
+    setShowAddForm(true);
+  };
+
+  const handleCancelForm = () => {
+    setEditingAlarm(null);
+    setShowAddForm(false);
+  };
+
+  // Removed stats block and its helpers
+
+  return (
+    <div className={`min-h-screen transition-all duration-1000 ${
+      settings.isDarkMode 
+        ? `bg-gradient-to-br ${currentTheme.from} via-gray-900 ${currentTheme.to}` 
+        : `bg-gradient-to-br ${currentTheme.light} via-white to-gray-50`
+    }`}>
+      
+      {/* Enhanced Particle Background */}
+      <ParticleBackground count={60} className="opacity-40" />
+      
+      {/* Dynamic background waves with glassmorphism */}
+      <div className="absolute inset-0 overflow-hidden opacity-30">
+        <div className="absolute -inset-10">
+          <div className={`absolute top-0 -left-4 w-96 h-96 bg-gradient-to-r ${currentTheme.from.includes('purple') ? 'from-purple-400' : currentTheme.from.includes('blue') ? 'from-blue-400' : currentTheme.from.includes('orange') ? 'from-orange-400' : currentTheme.from.includes('green') ? 'from-green-400' : 'from-violet-400'} to-transparent rounded-full mix-blend-multiply filter blur-3xl animate-pulse transform rotate-45`}></div>
+          <div className="absolute top-0 -right-4 w-96 h-96 bg-gradient-to-l from-yellow-400 to-transparent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000 transform -rotate-45"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-gradient-to-t from-pink-400 to-transparent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
+      </div>
+
+  <div className="relative z-10 max-w-6xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8 pb-16 sm:pb-20">
+        
+        {/* Header with controls */}
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-6 flex-wrap">
+            <div className={`p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-${currentTheme.accent} to-purple-600 backdrop-blur-lg shadow-xl`}>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 text-white animate-pulse text-xl sm:text-2xl">⏰</div>
+            </div>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent drop-shadow-lg">
+              AlarmaPro AI
+            </h1>
+          </div>
+
+          {/* Control panel */}
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-5 sm:mb-6 overflow-x-auto px-1 py-1">
+            <TimeFormatToggle
+              is24Hour={settings.is24HourFormat}
+              onToggle={toggleTimeFormat}
+              isDarkMode={settings.isDarkMode}
+              accentHex={THEME_ACCENT_HEX[settings.theme]}
+            />
+            <Button
+              variant={settings.voiceEnabled ? "primary" : "ghost"}
+              size="sm"
+              onClick={toggleVoice}
+              title="Voz habilitada"
+              className="h-9 w-10 p-0 flex items-center justify-center"
+            >🔊</Button>
+
+      <div className={`relative h-8 inline-flex items-center rounded-xl ${settings.isDarkMode ? 'bg-white/15' : 'bg-black/15'} backdrop-blur-lg ${settings.isDarkMode ? 'border-white/10' : 'border-black/10'} border`}> 
+              <select
+                value={settings.theme}
+                onChange={(e) => setTheme(e.target.value as any)}
+        className={`h-8 appearance-none text-sm pl-3 pr-7 rounded-xl ${settings.isDarkMode ? 'bg-transparent text-white' : 'bg-transparent text-gray-800'} focus:ring-2 focus:ring-purple-500 focus:outline-none`}
+        style={{ backgroundImage: 'none' }}
+              >
+                <option className="text-gray-900" value="purple" style={{ color: '#111827' }}>{THEME_EMOJI.purple} Púrpura</option>
+                <option className="text-gray-900" value="ocean" style={{ color: '#111827' }}>{THEME_EMOJI.ocean} Océano</option>
+                <option className="text-gray-900" value="sunset" style={{ color: '#111827' }}>{THEME_EMOJI.sunset} Atardecer</option>
+                <option className="text-gray-900" value="forest" style={{ color: '#111827' }}>{THEME_EMOJI.forest} Bosque</option>
+                <option className="text-gray-900" value="cosmic" style={{ color: '#111827' }}>{THEME_EMOJI.cosmic} Cósmico</option>
+              </select>
+              <span className="pointer-events-none absolute right-2 text-white/80">▾</span>
+            </div>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleDarkMode}
+              className="h-9 w-10 p-0 flex items-center justify-center"
+            >{settings.isDarkMode ? '☀️' : '🌙'}</Button>
+
+            {/* Botón de estadísticas eliminado */}
+          </div>
+
+            {/* Estadísticas retiradas a petición del usuario */}
+
+          {/* Digital Clock */}
+          <DigitalClock
+            currentTime={currentTime}
+            is24HourFormat={settings.is24HourFormat}
+            isDarkMode={settings.isDarkMode}
+            voiceEnabled={settings.voiceEnabled}
+            theme={currentTheme}
+            themeType={settings.theme}
+          />
+        </div>
+
+        {/* Action buttons */}
+        <div className="w-full max-w-xl mx-auto mb-6 sm:mb-8">
+          <div className="flex gap-3 sm:gap-4 overflow-x-auto no-scrollbar whitespace-nowrap">
+            <Button
+              variant="primary"
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="min-w-0 flex-1 flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-4 text-base sm:text-lg"
+            >
+              ➕ {editingAlarm ? 'Editar Alarma' : 'Nueva Alarma'}
+            </Button>
+
+            <Button
+              variant="secondary"
+              onClick={() => setShowQuickAlarms(!showQuickAlarms)}
+              className="min-w-0 flex-1 flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-4 text-base sm:text-lg"
+            >
+              ⚡ Alarmas Rápidas
+            </Button>
+          </div>
+        </div>
+
+        {/* Quick alarms */}
+        <Modal open={showQuickAlarms} onClose={() => setShowQuickAlarms(false)} title="⚡ Alarmas Rápidas" maxWidthClass="max-w-2xl">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 sm:gap-3">
+            {QUICK_ALARMS.map((quick) => (
+              <button
+                key={quick.minutes}
+                onClick={() => handleAddQuickAlarm(quick.minutes)}
+                className={`group p-3 sm:p-4 rounded-2xl ${settings.isDarkMode ? 'bg-white/10 hover:bg-white/20' : 'bg-white/50 hover:bg-white/70'} backdrop-blur-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl hover-glow`}
+              >
+                <div className={`w-7 h-7 sm:w-8 sm:h-8 mx-auto mb-1 sm:mb-2 ${settings.isDarkMode ? 'text-white' : 'text-gray-800'} group-hover:animate-bounce text-xl sm:text-2xl`}>
+                  {quick.icon}
+                </div>
+                <div className={`text-xs sm:text-sm font-semibold ${settings.isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                  {quick.label}
+                </div>
+              </button>
+            ))}
+          </div>
+        </Modal>
+
+        {/* Alarm form */}
+        <Modal open={showAddForm} onClose={handleCancelForm} title={editingAlarm ? '✏️ Editar Alarma' : '✨ Nueva Alarma'} maxWidthClass="max-w-xl">
+          <AlarmForm
+            alarm={editingAlarm || undefined}
+            isDarkMode={settings.isDarkMode}
+            theme={currentTheme}
+            onSave={handleSaveAlarm}
+            onCancel={handleCancelForm}
+            alarmVolume={settings.alarmVolume}
+            onVolumeChange={setVolume}
+            is24HourFormat={settings.is24HourFormat}
+          />
+        </Modal>
+
+        {/* Alarm list */}
+        <AlarmList
+          alarms={alarms}
+          isDarkMode={settings.isDarkMode}
+          is24HourFormat={settings.is24HourFormat}
+          theme={currentTheme}
+          onEdit={handleEditAlarm}
+          onToggle={toggleAlarm}
+          onDelete={deleteAlarm}
+        />
+      </div>
+
+      {/* Active alarm modal */}
+      {activeAlarm && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-lg flex items-center justify-center z-50">
+          <Card className="relative p-12 text-center max-w-lg mx-4 transform animate-bounce" isDarkMode={settings.isDarkMode}>
+            
+            {/* Visual effects */}
+            <div className="absolute inset-0 rounded-3xl overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-pink-600 opacity-20 animate-pulse"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-ping"></div>
+            </div>
+            
+            <div className="relative z-10">
+              <div className="mb-8">
+                <div className="relative">
+                  <div className="w-20 h-20 mx-auto text-yellow-400 animate-pulse drop-shadow-lg text-6xl">⚡</div>
+                  <div className="absolute inset-0 w-20 h-20 mx-auto border-4 border-yellow-400 rounded-full animate-ping"></div>
+                </div>
+              </div>
+              
+              <h2 className={`text-4xl font-bold mb-4 ${settings.isDarkMode ? 'text-white' : 'text-gray-800'} animate-pulse`}>
+                🚨 ¡ALARMA ACTIVA!
+              </h2>
+              
+              <p className={`text-2xl font-semibold mb-4 ${settings.isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                {activeAlarm.label}
+              </p>
+              
+              <p className={`text-5xl font-mono font-bold mb-8 ${settings.isDarkMode ? 'text-white' : 'text-gray-800'} tracking-wider`}>
+                {activeAlarm.time}
+              </p>
+
+              <div className="flex flex-col gap-4">
+                <div className="flex gap-4">
+                  {canSnooze && (
+                    <Button
+                      variant="secondary"
+                      onClick={handleSnoozeAlarm}
+                      className="flex-1 py-4 text-lg flex items-center justify-center gap-2"
+                    >
+                      🔄 Posponer 5min
+                    </Button>
+                  )}
+                  
+                  <Button
+                    variant="danger"
+                    onClick={() => {
+                      dismissAlarm();
+                      resetSnooze();
+                    }}
+                    className="flex-1 py-4 text-lg flex items-center justify-center gap-2"
+                  >
+                    🔇 Desactivar
+                  </Button>
+                </div>
+                
+                {snoozeCount > 0 && (
+                  <div className={`text-sm ${settings.isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Pospuestas: {snoozeCount}/{MAX_SNOOZE_COUNT}
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Snooze notification */}
+      {isSnoozing && (
+        <div className="fixed top-4 right-4 z-40">
+          <Card className="p-4 transform animate-bounce" isDarkMode={settings.isDarkMode}>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🔄</span>
+              <span className="font-semibold text-white">Pospuesta 5 minutos</span>
+            </div>
+          </Card>
+        </div>
+      )}
+
+  {/* Status indicators */}
+  <div className="fixed bottom-4 left-4 space-y-2 pointer-events-none select-none z-0">
+        <div className={`flex items-center gap-2 px-3 py-2 rounded-xl ${settings.isDarkMode ? 'bg-white/10' : 'bg-black/10'} backdrop-blur-lg`}>
+          <span className="text-green-400 text-sm">🔋</span>
+          <span className={`text-sm ${settings.isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+            {device.batteryLevel !== null ? `${device.batteryLevel}%${device.charging ? ' ⚡' : ''}` : '—'}
+          </span>
+        </div>
+        
+        <div className={`flex items-center gap-2 px-3 py-2 rounded-xl ${settings.isDarkMode ? 'bg-white/10' : 'bg-black/10'} backdrop-blur-lg`}>
+          <span className="text-blue-400 text-sm">📶</span>
+          <span className={`text-sm ${settings.isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+            {device.online ? 'Conectado' : 'Sin conexión'}{device.effectiveType ? ` · ${device.effectiveType.toUpperCase()}` : ''}
+          </span>
+        </div>
+        
+        {settings.voiceEnabled && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-green-600/30 backdrop-blur-lg animate-pulse">
+            <span className="text-green-300 text-sm">🔊</span>
+            <span className="text-sm text-green-300">Voz</span>
+          </div>
+        )}
+      </div>
+
+      {/* Audio element for alarm sounds */}
+      <audio ref={audioRef} loop>
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmETBjuZ2/LNeSsFJIDO8diPOAcZYrfr56pVGQ5SqOTwumMdCT2Q1/LgayUELIHO8dKXOR0Kaa3r85xdGAg+ltfzwmwjBifJ2u/JfyUFl8va9OeIOgUIV7zm76FeMwcn8u7z13YvCMnv8vB5Py4Kqu7y8mI3CzGP0vHkhWgfCTGZ2vLa0GIhBSRvy+75zWAmBKDv8PV1Pgs6jub0rEMeLFiy5O6QRggPa6zq8zNdEhE5jeb0wGYdBivQ8eeKMwo=" />
+      </audio>
+    </div>
+  );
+};
+
+export default ModernAlarmSystem;
