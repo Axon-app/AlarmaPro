@@ -8,6 +8,8 @@ export interface Alarm {
   priority: AlarmPriority;
   vibrate: boolean;
   gradualWake: boolean;
+  // Si está activo, esta alarma leerá en voz alta su etiqueta cuando suene
+  useVoice: boolean;
 }
 
 export type AlarmPriority = 'low' | 'normal' | 'high' | 'urgent';

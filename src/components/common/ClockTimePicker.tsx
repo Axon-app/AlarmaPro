@@ -14,11 +14,21 @@ function clamp(n: number, min: number, max: number) {
 }
 
 function parse24(value: string) {
-  const match = /^(\d{1,2}):(\d{2})$/.exec(value || '');
+  const match = /^(\d{1,2}):(\d{2})(?:\s*(AM|PM))?$/i.exec(value || '');
   let h = 8, m = 0;
   if (match) {
-    h = clamp(parseInt(match[1], 10), 0, 23);
-    m = clamp(parseInt(match[2], 10), 0, 59);
+    h = parseInt(match[1], 10);
+    m = parseInt(match[2], 10);
+    const ampm = match[3]?.toUpperCase();
+    
+    // Convertir 12h a 24h si se proporciona AM/PM
+    if (ampm) {
+      if (ampm === 'PM' && h < 12) h += 12;
+      if (ampm === 'AM' && h === 12) h = 0;
+    }
+    
+    h = clamp(h, 0, 23);
+    m = clamp(m, 0, 59);
   } else {
     const now = new Date();
     h = now.getHours();
@@ -110,7 +120,15 @@ export const ClockTimePicker: React.FC<ClockTimePickerProps> = ({
     setSelHour(d.hours);
     setSelMin(m);
     setSelAmpm(d.ampm);
-  }, [value, use12Hour, h, m]);
+    
+    // Actualizar el valor cuando cambia el formato de hora
+    if (value) {
+      const newValue = fromDisplay(d.hours, m, d.ampm, use12Hour);
+      if (newValue !== value) {
+        onChange(newValue);
+      }
+    }
+  }, [value, use12Hour, h, m, onChange]);
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
@@ -270,7 +288,12 @@ export const ClockTimePicker: React.FC<ClockTimePickerProps> = ({
         <div className={`flex items-center gap-3 ${textColor}`}>
           <span className="text-xl">⏰</span>
           <span className="font-mono text-lg font-bold tracking-wider">
-            {to24String(h, m)}
+            {(() => {
+              const display = toDisplay(h, use12Hour);
+              return use12Hour 
+                ? `${display.hours.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}` 
+                : to24String(h, m);
+            })()}
           </span>
           {use12Hour && (
             <span className={`px-2 py-1 rounded-lg text-xs ${isDarkMode ? 'bg-white/10 text-white' : 'bg-black/10 text-gray-800'}`}>{disp.ampm}</span>

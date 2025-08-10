@@ -117,7 +117,8 @@ export const createQuickAlarm = (minutes: number): Omit<Alarm, 'id'> => {
     enabled: true,
     priority: 'high',
     vibrate: true,
-  gradualWake: false
+  gradualWake: false,
+  useVoice: false
   };
 };
 
@@ -137,7 +138,8 @@ export const createSnoozeAlarm = (
     ...activeAlarm,
     time: timeStr,
     label: `${activeAlarm.label} (Snooze ${snoozeCount + 1})`,
-    days: []
+  days: [],
+  useVoice: (activeAlarm as any).useVoice ?? false
   };
 };
 

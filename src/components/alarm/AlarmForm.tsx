@@ -51,7 +51,8 @@ export const AlarmForm: React.FC<AlarmFormProps> = ({
       enabled: alarm.enabled,
       priority: alarm.priority,
       vibrate: alarm.vibrate,
-  gradualWake: alarm.gradualWake
+  gradualWake: alarm.gradualWake,
+  useVoice: (alarm as Alarm).useVoice ?? false
     } : { ...DEFAULT_ALARM }
   );
 
@@ -192,7 +193,8 @@ export const AlarmForm: React.FC<AlarmFormProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {[
               { key: 'vibrate', label: '📳 Vibrar' },
-        { key: 'gradualWake', label: '🌅 Despertar Gradual' }
+              { key: 'gradualWake', label: '🌅 Despertar Gradual' },
+              { key: 'useVoice', label: '🗣️ Leer título' }
             ].map((option) => (
               <label key={option.key} className="flex items-center gap-3 cursor-pointer">
                 <input

@@ -103,7 +103,7 @@ const ModernAlarmSystem: React.FC = () => {
     });
   };
 
-  // Reproducir sonido de alarma según selección
+  // Reproducir sonido de alarma según selección y (opcional) leer etiqueta por voz
   useEffect(() => {
     const el = audioRef.current;
     if (!el) return;
@@ -128,12 +128,24 @@ const ModernAlarmSystem: React.FC = () => {
           // Forzar inicio desde el principio
           el.currentTime = 0;
           void el.play().catch(() => {/* ignorar bloqueo de autoplay si ocurre */});
+
+          // Leer etiqueta de la alarma si ambas opciones están activas
+          if (settings.voiceEnabled && (activeAlarm as any).useVoice && activeAlarm.label) {
+            try {
+              const utter = new SpeechSynthesisUtterance(activeAlarm.label);
+              utter.lang = 'es-ES';
+              utter.volume = Math.max(0, Math.min(1, (settings.alarmVolume ?? 100) / 100));
+              window.speechSynthesis.cancel(); // reiniciar cola
+              window.speechSynthesis.speak(utter);
+            } catch {}
+          }
         } catch {}
       }
     } else {
       el.pause();
+      try { window.speechSynthesis.cancel(); } catch {}
     }
-  }, [activeAlarm, settings.alarmVolume]);
+  }, [activeAlarm, settings.alarmVolume, settings.voiceEnabled]);
   
   // Se elimina efecto 3D del logo
 
