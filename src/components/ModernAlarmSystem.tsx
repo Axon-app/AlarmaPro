@@ -1,9 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Alarm } from '../types';
 import { useAlarmManager, useCurrentTime, useSettings, useSnooze, useDeviceStatus } from '../hooks';
 import { THEMES, THEME_ACCENT_HEX, QUICK_ALARMS, SNOOZE_DURATION, MAX_SNOOZE_COUNT } from '../constants';
 import { createQuickAlarm, createSnoozeAlarm } from '../utils';
-import { DigitalClock, ParticleBackground, TimeFormatToggle, ThemeSelect } from './common';
+
+// Función para obtener la ruta completa de recursos estáticos
+const getPath = (path: string): string => {
+  const base = '/AlarmaPro/';
+  return `${base}${path}`;
+};
+import { DigitalClock, ParticleBackground, TimeFormatToggle, ThemeSelect, WelcomeModal } from './common';
+import { ALARM_SOUNDS as SOUND_LIST } from '../constants/alarmSounds';
 import { AlarmList, AlarmForm } from './alarm';
 import { Card, Button, Modal } from './ui';
 
@@ -18,6 +25,9 @@ const ModernAlarmSystem: React.FC = () => {
   const [showQuickAlarms, setShowQuickAlarms] = useState(false);
   const [editingAlarm, setEditingAlarm] = useState<Alarm | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  
+  // Logo estático (sin efecto 3D)
 
   const currentTheme = THEMES[settings.theme];
 
@@ -56,6 +66,77 @@ const ModernAlarmSystem: React.FC = () => {
     setShowAddForm(false);
   };
 
+  // Capture the install prompt
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      // Prevent Chrome 67 and earlier from automatically showing the prompt
+      e.preventDefault();
+      // Stash the event so it can be triggered later
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallApp = () => {
+    if (!deferredPrompt) {
+      // Show fallback instructions if prompt not available
+      alert("Para instalar la aplicación: \n1. Abre el menú del navegador (los tres puntos)\n2. Selecciona 'Instalar aplicación' o 'Añadir a pantalla de inicio'");
+      return;
+    }
+
+    // Show the install prompt
+    deferredPrompt.prompt();
+    
+    // Wait for the user to respond to the prompt
+    deferredPrompt.userChoice.then((choiceResult: any) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('Usuario aceptó la instalación');
+      } else {
+        console.log('Usuario rechazó la instalación');
+      }
+      // Clear the saved prompt since it can't be used again
+      setDeferredPrompt(null);
+    });
+  };
+
+  // Reproducir sonido de alarma según selección
+  useEffect(() => {
+    const el = audioRef.current;
+    if (!el) return;
+
+    const getSoundUrl = (soundValue: string | undefined): string => {
+      if (!soundValue) return SOUND_LIST[0]?.url || '';
+      // Si ya es una ruta/url a un mp3 dentro de la app
+      if (/(\.mp3|^\/|^https?:)/i.test(soundValue)) return soundValue;
+      // Compat: claves antiguas -> usa primera opción como fallback
+      return SOUND_LIST[0]?.url || '';
+    };
+
+    if (activeAlarm) {
+      const url = getSoundUrl(activeAlarm.sound);
+      if (url) {
+        try {
+          el.pause();
+          // Asignar src directo para asegurar carga del archivo
+          el.src = url;
+          el.loop = true;
+          el.volume = Math.max(0, Math.min(1, (settings.alarmVolume ?? 100) / 100));
+          // Forzar inicio desde el principio
+          el.currentTime = 0;
+          void el.play().catch(() => {/* ignorar bloqueo de autoplay si ocurre */});
+        } catch {}
+      }
+    } else {
+      el.pause();
+    }
+  }, [activeAlarm, settings.alarmVolume]);
+  
+  // Se elimina efecto 3D del logo
+
   return (
     <div className={`min-h-screen transition-all duration-1000 ${
       settings.isDarkMode 
@@ -78,11 +159,17 @@ const ModernAlarmSystem: React.FC = () => {
         {/* Header with controls */}
         <div className="text-center mb-6 sm:mb-8">
           <div className="flex items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-6 flex-wrap">
-            <div className={`p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-${currentTheme.accent} to-purple-600 backdrop-blur-lg shadow-xl`}>
-              <div className="w-7 h-7 sm:w-8 sm:h-8 text-white animate-pulse text-xl sm:text-2xl">⏰</div>
+            <div
+              className={`p-2 sm:p-3 rounded-2xl bg-gradient-to-r from-${currentTheme.accent} to-purple-600 backdrop-blur-lg shadow-xl`}
+            >
+              <img
+                src={getPath('clockT.png')}
+                alt="AlarmaPro Logo"
+                className="w-8 h-8 sm:w-9 sm:h-9"
+              />
             </div>
-            <h1 className={`text-3xl sm:text-4xl md:text-5xl font-bold drop-shadow-lg ${settings.isDarkMode ? 'bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent' : 'text-gray-900'}`}>
-              AlarmaPro AI
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">
+              AlarmaPro
             </h1>
           </div>
 
@@ -199,22 +286,22 @@ const ModernAlarmSystem: React.FC = () => {
       {/* Active alarm modal */}
       {activeAlarm && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-lg flex items-center justify-center z-50">
-          <Card className="relative p-12 text-center max-w-lg mx-4 transform animate-bounce" isDarkMode={settings.isDarkMode}>
+          <Card className="relative p-12 text-center max-w-lg mx-4" isDarkMode={settings.isDarkMode}>
             {/* Visual effects */}
             <div className="absolute inset-0 rounded-3xl overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-pink-600 opacity-20 animate-pulse"></div>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-ping"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-pink-600 opacity-20"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
             </div>
             
             <div className="relative z-10">
               <div className="mb-8">
                 <div className="relative">
-                  <div className="w-20 h-20 mx-auto text-yellow-400 animate-pulse drop-shadow-lg text-6xl">⚡</div>
-                  <div className="absolute inset-0 w-20 h-20 mx-auto border-4 border-yellow-400 rounded-full animate-ping"></div>
+                  <div className="w-20 h-20 mx-auto text-yellow-400 drop-shadow-lg text-6xl">⚡</div>
+                  <div className="absolute inset-0 w-20 h-20 mx-auto border-4 border-yellow-400 rounded-full"></div>
                 </div>
               </div>
               
-              <h2 className={`text-4xl font-bold mb-4 ${settings.isDarkMode ? 'text-white' : 'text-gray-800'} animate-pulse`}>
+              <h2 className={`text-4xl font-bold mb-4 ${settings.isDarkMode ? 'text-white' : 'text-gray-800'}`}>
                 🚨 ¡ALARMA ACTIVA!
               </h2>
               
@@ -302,10 +389,15 @@ const ModernAlarmSystem: React.FC = () => {
         )}
       </div>
 
-      {/* Audio element for alarm sounds */}
-      <audio ref={audioRef} loop>
-        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmETBjuZ2/LNeSsFJIDO8diPOAcZYrfr56pVGQ5SqOTwumMdCT2Q1/LgayUELIHO8dKXOR0Kaa3r85xdGAg+ltfzwmwjBifJ2u/JfyUFl8va9OeIOgUIV7zm76FeMwcn8u7z13YvCMnv8vB5Py4Kqu7y8mI3CzGP0vHkhWgfCTGZ2vLa0GIhBSRvy+75zWAmBKDv8PV1Pgs6jub0rEMeLFiy5O6QRggPa6zq8zNdEhE5jeb0wGYdBivQ8eeKMwo=" />
-      </audio>
+      {/* Welcome Modal */}
+      <WelcomeModal 
+        isDarkMode={settings.isDarkMode} 
+        onInstall={handleInstallApp}
+        onDismiss={() => {}}
+      />
+
+  {/* Audio element for alarm sounds (src se asigna dinámicamente) */}
+  <audio ref={audioRef} />
     </div>
   );
 };

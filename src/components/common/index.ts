@@ -8,4 +8,6 @@ export { ThemeWaves } from './ThemeWaves.tsx';
 export { ThemeSelect } from './ThemeSelect.tsx';
 export { GlassmorphismBackground } from './GlassmorphismBackground.tsx';
 export { TimePicker } from './TimePicker.tsx';
+export { ClockTimePicker } from './ClockTimePicker.tsx';
 export { TimeFormatToggle } from './TimeFormatToggle.tsx';
+export { WelcomeModal } from './WelcomeModal.tsx';

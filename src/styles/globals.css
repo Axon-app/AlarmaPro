@@ -5,6 +5,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Tamaño extra pequeño para texto */
+.text-2xs {
+  font-size: 0.625rem; /* 10px */
+  line-height: 0.75rem; /* 12px */
+}
+
+/* Para efectos 3D */
+.perspective-500 {
+  perspective: 500px;
+}
+
 /* Hide scrollbar for Chrome, Safari and Opera */
 .no-scrollbar::-webkit-scrollbar {
 	display: none;

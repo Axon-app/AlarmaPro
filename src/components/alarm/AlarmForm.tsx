@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { Alarm, AlarmPriority, ThemeType } from '../../types';
-import { ALARM_SOUNDS, WEEK_DAYS, DEFAULT_ALARM } from '../../constants';
+import { Alarm, ThemeType } from '../../types';
+import { WEEK_DAYS, DEFAULT_ALARM } from '../../constants';
 import { validateAlarmForm } from '../../utils';
 import { Card, Button, Input } from '../ui';
-import { TimePicker } from '../common';
+import { ClockTimePicker, AlarmSounds } from '../common';
 
 interface AlarmFormProps {
   alarm?: Alarm;
@@ -85,7 +85,7 @@ export const AlarmForm: React.FC<AlarmFormProps> = ({
 
   return (
     <Card 
-      className="max-w-lg mx-auto p-5 sm:p-8 transform animate-pulse"
+      className="max-w-lg mx-auto p-5 sm:p-8"
       isDarkMode={isDarkMode}
     >
       <h3 className={`text-xl sm:text-2xl font-bold mb-4 sm:mb-6 ${isDarkMode ? 'text-white' : 'text-gray-800'} text-center`}>
@@ -102,30 +102,14 @@ export const AlarmForm: React.FC<AlarmFormProps> = ({
           </div>
         )}
 
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <TimePicker
+        <div>
+          <ClockTimePicker
             label="⏰ Hora"
             value={formData.time}
             onChange={(val) => updateField('time', val)}
             isDarkMode={isDarkMode}
             use12Hour={!is24HourFormat}
           />
-
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              🚨 Prioridad
-            </label>
-            <select
-              value={formData.priority}
-              onChange={(e) => updateField('priority', e.target.value as AlarmPriority)}
-              className={`w-full p-4 rounded-xl ${isDarkMode ? 'bg-white/10 text-white border-white/20' : 'bg-white/70 text-gray-800 border-gray-300'} border focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all`}
-            >
-              <option value="low">🔵 Baja</option>
-              <option value="normal">🟢 Normal</option>
-              <option value="high">🟡 Alta</option>
-              <option value="urgent">🔴 Urgente</option>
-            </select>
-          </div>
         </div>
 
         <Input
@@ -163,24 +147,15 @@ export const AlarmForm: React.FC<AlarmFormProps> = ({
         </div>
 
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              🎵 Sonido
-            </label>
-            <select
-              value={formData.sound}
-              onChange={(e) => updateField('sound', e.target.value)}
-              className={`w-full p-3 rounded-xl ${isDarkMode ? 'bg-white/10 text-white border-white/20' : 'bg-white/70 text-gray-800 border-gray-300'} border focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all`}
-            >
-              {Object.entries(ALARM_SOUNDS).map(([key, sound]) => (
-                <option key={key} value={key}>
-                  {sound.name}
-                </option>
-              ))}
-            </select>
+          <div className="sm:col-span-1">
+            <AlarmSounds
+              selectedSound={typeof formData.sound === 'string' ? formData.sound : ''}
+              onSoundChange={(url) => updateField('sound', url)}
+              className=""
+            />
           </div>
 
-          <div>
+          <div className="sm:col-span-1">
             <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               🔊 Volumen
             </label>

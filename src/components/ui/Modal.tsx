@@ -40,14 +40,14 @@ export const Modal: React.FC<ModalProps> = ({
       {/* Sheet on mobile, centered dialog on desktop */}
       <div
         className={`relative w-full sm:w-auto sm:${maxWidthClass} sm:mx-auto bg-white/5 sm:bg-white/10 border border-white/20 rounded-t-2xl sm:rounded-2xl shadow-2xl backdrop-blur-xl overflow-hidden`}
-        style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0px)' }}
+        style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0px)', maxWidth: maxWidthClass === 'max-w-sm' ? '340px' : undefined }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
           <h3 className="text-white text-lg font-semibold select-none">{title}</h3>
           <button
             onClick={onClose}
-            className="text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-lg p-2 transition"
+            className="text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-lg p-1.5 transition"
             aria-label="Cerrar"
           >
             ✖️
@@ -55,7 +55,7 @@ export const Modal: React.FC<ModalProps> = ({
         </div>
 
         {/* Content */}
-  <div className="max-h-[70vh] sm:max-h-[80vh] overflow-y-auto p-4 sm:p-6 custom-scrollbar">
+  <div className="max-h-[70vh] sm:max-h-[80vh] overflow-y-auto p-4 custom-scrollbar">
           {children}
         </div>
       </div>
