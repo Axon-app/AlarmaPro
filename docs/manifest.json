@@ -1,0 +1,23 @@
+{
+  "name": "AlarmaPro",
+  "short_name": "AlarmaPro",
+  "description": "Sistema moderno de alarmas",
+  "start_url": "/AlarmaPro/",
+  "display": "standalone",
+  "background_color": "#7c3aed",
+  "theme_color": "#7c3aed",
+  "icons": [
+    {
+      "src": "clock.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "clockT.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
