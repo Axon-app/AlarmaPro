@@ -2,7 +2,7 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/alarm-icon.svg" />
+  <link rel="icon" type="image/svg+xml" href="alarm-icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="AlarmaPro - Sistema moderno de alarmas con IA" />
     <meta name="theme-color" content="#7c3aed" />
@@ -60,7 +60,7 @@
     <!-- Main app -->
     <div id="root"></div>
     
-    <script type="module" src="/src/index.tsx"></script>
+  <script type="module" src="/src/index.tsx"></script>
     
     <script>
       // Hide loading screen when app loads
@@ -72,9 +72,11 @@
       });
       
       // Service Worker registration for PWA functionality
-      if ('serviceWorker' in navigator) {
+      if ('serviceWorker' in navigator && location.hostname.endsWith('github.io')) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
+          const base = location.pathname.replace(/\/[^/]*$/,'/');
+          const swUrl = base + 'sw.js';
+          navigator.serviceWorker.register(swUrl)
             .then((registration) => {
               console.log('SW registered: ', registration);
             })
